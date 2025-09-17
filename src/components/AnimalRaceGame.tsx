@@ -6,12 +6,14 @@ import { AnimalCard } from './AnimalCard';
 import { RaceStats } from './RaceStats';
 
 const animals = [
-  { id: 1, name: 'Lightning Cheetah', emoji: '🐆', speed: 85, wins: 24 },
-  { id: 2, name: 'Thunder Horse', emoji: '🐎', speed: 80, wins: 31 },
-  { id: 3, name: 'Swift Rabbit', emoji: '🐰', speed: 75, wins: 19 },
-  { id: 4, name: 'Turbo Turtle', emoji: '🐢', speed: 60, wins: 8 },
-  { id: 5, name: 'Flash Falcon', emoji: '🦅', speed: 90, wins: 28 },
-  { id: 6, name: 'Dash Deer', emoji: '🦌', speed: 70, wins: 22 }
+  { id: 1, name: 'Lightning Cheetah', emoji: '🐆', speed: 85, wins: 24, quirk: 'Loves energy drinks!' },
+  { id: 2, name: 'Thunder Horse', emoji: '🐎', speed: 80, wins: 31, quirk: 'Gallops to disco music' },
+  { id: 3, name: 'Swift Rabbit', emoji: '🐰', speed: 75, wins: 19, quirk: 'Powered by carrots' },
+  { id: 4, name: 'Turbo Turtle', emoji: '🐢', speed: 60, wins: 8, quirk: 'Slow but unstoppable!' },
+  { id: 5, name: 'Flash Falcon', emoji: '🦅', speed: 90, wins: 28, quirk: 'Soars through clouds' },
+  { id: 6, name: 'Dash Deer', emoji: '🦌', speed: 70, wins: 22, quirk: 'Forest parkour expert' },
+  { id: 7, name: 'Rocket Rhino', emoji: '🦏', speed: 78, wins: 15, quirk: 'Breaks sound barriers' },
+  { id: 8, name: 'Zoom Zebra', emoji: '🦓', speed: 82, wins: 26, quirk: 'Striped speed demon' }
 ];
 
 export const AnimalRaceGame = () => {
@@ -20,6 +22,8 @@ export const AnimalRaceGame = () => {
   const [isRacing, setIsRacing] = useState(false);
   const [raceResult, setRaceResult] = useState<number | null>(null);
   const [balance, setBalance] = useState(1000);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
   const [todayStats, setTodayStats] = useState({
     racesToday: 47,
     totalPayouts: 23400,
@@ -40,11 +44,18 @@ export const AnimalRaceGame = () => {
       if (winner === selectedAnimal) {
         const winnings = betAmount * 2.5;
         setBalance(prev => prev + winnings);
+        setIsWinner(true);
+        setShowConfetti(true);
         setTodayStats(prev => ({
           ...prev,
           totalPayouts: prev.totalPayouts + winnings,
           lastWinner: animals.find(a => a.id === winner)?.name || ''
         }));
+        
+        // Hide confetti after animation
+        setTimeout(() => setShowConfetti(false), 3000);
+      } else {
+        setIsWinner(false);
       }
       
       setTodayStats(prev => ({
@@ -58,6 +69,7 @@ export const AnimalRaceGame = () => {
       setTimeout(() => {
         setRaceResult(null);
         setSelectedAnimal(null);
+        setIsWinner(false);
       }, 3000);
     }, 3000);
   };
@@ -66,7 +78,7 @@ export const AnimalRaceGame = () => {
     <div className="min-h-screen cosmic-bg relative overflow-hidden">
       {/* Background Stars */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(50)].map((_, i) => (
+        {[...Array(100)].map((_, i) => (
           <div
             key={i}
             className="absolute w-1 h-1 bg-primary rounded-full animate-sparkle"
@@ -79,12 +91,57 @@ export const AnimalRaceGame = () => {
         ))}
       </div>
 
+      {/* Confetti Effect */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          {[...Array(50)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 animate-bounce"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][Math.floor(Math.random() * 5)],
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${1 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Floating Emojis */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {['🎉', '⚡', '🏆', '💫', '🌟'].map((emoji, i) => (
+          <div
+            key={i}
+            className="absolute text-2xl animate-float opacity-20"
+            style={{
+              left: `${20 + i * 15}%`,
+              top: `${30 + Math.sin(i) * 20}%`,
+              animationDelay: `${i * 0.5}s`
+            }}
+          >
+            {emoji}
+          </div>
+        ))}
+      </div>
+
       {/* Header */}
       <header className="relative z-10 p-6 text-center">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+        <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2 animate-pulse-glow">
           🏁 COSMIC ANIMAL RACING 🏁
         </h1>
-        <p className="text-muted-foreground text-lg">Choose your champion and watch them race to victory!</p>
+        <p className="text-muted-foreground text-xl animate-fade-in">
+          {isRacing ? "🏃‍♂️ The race is on! May the fastest animal win!" : 
+           raceResult ? (isWinner ? "🎊 CONGRATULATIONS! You picked a winner!" : "😅 Better luck next time, champion!") :
+           "Choose your champion and watch them zoom to victory! 🚀"}
+        </p>
+        {raceResult && (
+          <div className="mt-2 text-2xl animate-bounce">
+            Winner: {animals.find(a => a.id === raceResult)?.emoji} {animals.find(a => a.id === raceResult)?.name}!
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -101,9 +158,11 @@ export const AnimalRaceGame = () => {
             
 
             {/* Animal Selection */}
-            <Card className="race-card p-6">
-              <h2 className="text-2xl font-bold text-center mb-6 text-primary">Choose Your Racer</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Card className="race-card p-6 hover:scale-[1.02] transition-transform duration-300">
+              <h2 className="text-3xl font-bold text-center mb-6 text-primary animate-pulse">
+                🎯 Choose Your Racing Champion! 🎯
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {animals.map((animal) => (
                   <AnimalCard
                     key={animal.id}
@@ -111,17 +170,18 @@ export const AnimalRaceGame = () => {
                     isSelected={selectedAnimal === animal.id}
                     onClick={() => !isRacing && setSelectedAnimal(animal.id)}
                     disabled={isRacing}
+                    isWinner={raceResult === animal.id}
                   />
                 ))}
               </div>
             </Card>
 
             {/* Betting Controls */}
-            <Card className="race-card p-6">
+            <Card className="race-card p-6 border-2 border-dashed border-primary/30 hover:border-primary/60 transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-primary">Place Your Bet</h3>
-                <Badge variant="secondary" className="text-lg px-3 py-1">
-                  Balance: ${balance}
+                <h3 className="text-2xl font-bold text-primary animate-pulse">💰 Place Your Bet! 💰</h3>
+                <Badge variant="secondary" className="text-xl px-4 py-2 animate-pulse-glow">
+                  💵 ${balance}
                 </Badge>
               </div>
               
@@ -144,21 +204,29 @@ export const AnimalRaceGame = () => {
                 <Button
                   onClick={placeBet}
                   disabled={!selectedAnimal || isRacing || betAmount > balance}
-                  className="px-8 py-3 text-lg font-bold animate-pulse-glow"
+                  className="px-8 py-4 text-xl font-bold animate-pulse-glow hover:scale-110 transition-transform duration-200"
                   size="lg"
                 >
-                  {isRacing ? '🏃‍♂️ Racing...' : '🎰 Place Bet'}
+                  {isRacing ? '🏃‍♂️ RACING IN PROGRESS...' : '🚀 LAUNCH THE RACE!'}
                 </Button>
               </div>
               
               {selectedAnimal && (
-                <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-                  <p className="text-center text-foreground">
-                    Betting ${betAmount} on <span className="font-bold text-primary">
-                      {animals.find(a => a.id === selectedAnimal)?.name}
+                <div className="mt-4 p-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg border border-primary/30 animate-pulse">
+                  <p className="text-center text-foreground text-lg">
+                    🎯 Betting <span className="font-bold text-accent">${betAmount}</span> on{' '}
+                    <span className="font-bold text-primary text-xl">
+                      {animals.find(a => a.id === selectedAnimal)?.emoji} {animals.find(a => a.id === selectedAnimal)?.name}
                     </span>
-                    {betAmount > 0 && <span className="text-muted-foreground"> • Potential win: ${(betAmount * 2.5).toFixed(0)}</span>}
                   </p>
+                  <p className="text-center text-sm text-muted-foreground mt-1">
+                    "{animals.find(a => a.id === selectedAnimal)?.quirk}"
+                  </p>
+                  {betAmount > 0 && (
+                    <p className="text-center text-accent font-bold mt-2">
+                      💎 Potential Jackpot: ${(betAmount * 2.5).toFixed(0)}!
+                    </p>
+                  )}
                 </div>
               )}
             </Card>
@@ -166,21 +234,38 @@ export const AnimalRaceGame = () => {
 
           {/* Right Sidebar - Animal Win Stats */}
           <div className="lg:col-span-1">
-            <Card className="race-card p-6">
-              <h3 className="text-xl font-bold text-center mb-4 text-primary">🏆 Win Leaderboard</h3>
+            <Card className="race-card p-6 hover:scale-[1.02] transition-transform duration-300">
+              <h3 className="text-2xl font-bold text-center mb-4 text-primary animate-pulse">🏆 Champion Leaderboard 🏆</h3>
               <div className="space-y-3">
                 {animals
                   .sort((a, b) => b.wins - a.wins)
                   .map((animal, index) => (
-                    <div key={animal.id} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{animal.emoji}</span>
+                    <div key={animal.id} className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 hover:scale-105 ${
+                      index === 0 ? 'bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border border-yellow-400/30' :
+                      index === 1 ? 'bg-gradient-to-r from-gray-300/20 to-gray-400/20 border border-gray-400/30' :
+                      index === 2 ? 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30' :
+                      'bg-secondary/30'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        {index < 3 && (
+                          <div className="text-lg">
+                            {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                          </div>
+                        )}
+                        <span className="text-3xl animate-float" style={{ animationDelay: `${index * 0.1}s` }}>
+                          {animal.emoji}
+                        </span>
                         <div>
-                          <p className="font-medium text-sm">{animal.name}</p>
-                          <p className="text-xs text-muted-foreground">Speed: {animal.speed}</p>
+                          <p className="font-bold text-sm">{animal.name}</p>
+                          <p className="text-xs text-muted-foreground">⚡ Speed {animal.speed}</p>
+                          <p className="text-xs text-muted-foreground italic">"{animal.quirk}"</p>
                         </div>
                       </div>
-                      <Badge variant={index < 3 ? "default" : "secondary"} className="font-bold">
+                      <Badge variant={index < 3 ? "default" : "secondary"} className={`font-bold text-sm px-3 py-1 ${
+                        index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' :
+                        index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white' :
+                        index === 2 ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white' : ''
+                      }`}>
                         {animal.wins} wins
                       </Badge>
                     </div>
