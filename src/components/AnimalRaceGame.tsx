@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AnimalCard } from './AnimalCard';
 import { RaceStats } from './RaceStats';
-import { RaceTrack } from './RaceTrack';
 
 const animals = [
   { id: 1, name: 'Lightning Cheetah', emoji: '🐆', speed: 85, wins: 24 },
@@ -100,13 +99,6 @@ export const AnimalRaceGame = () => {
           {/* Main Game Area */}
           <div className="lg:col-span-2 space-y-6">
             
-            {/* Race Track */}
-            <RaceTrack 
-              animals={animals} 
-              isRacing={isRacing} 
-              winner={raceResult}
-              selectedAnimal={selectedAnimal}
-            />
 
             {/* Animal Selection */}
             <Card className="race-card p-6">
