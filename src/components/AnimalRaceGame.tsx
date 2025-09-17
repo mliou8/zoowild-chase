@@ -22,7 +22,6 @@ export const AnimalRaceGame = () => {
   const [isRacing, setIsRacing] = useState(false);
   const [raceResult, setRaceResult] = useState<number | null>(null);
   const [balance, setBalance] = useState(1000);
-  const [showConfetti, setShowConfetti] = useState(false);
   const [isWinner, setIsWinner] = useState(false);
   const [todayStats, setTodayStats] = useState({
     racesToday: 47,
@@ -45,15 +44,11 @@ export const AnimalRaceGame = () => {
         const winnings = betAmount * 2.5;
         setBalance(prev => prev + winnings);
         setIsWinner(true);
-        setShowConfetti(true);
         setTodayStats(prev => ({
           ...prev,
           totalPayouts: prev.totalPayouts + winnings,
           lastWinner: animals.find(a => a.id === winner)?.name || ''
         }));
-        
-        // Hide confetti after animation
-        setTimeout(() => setShowConfetti(false), 3000);
       } else {
         setIsWinner(false);
       }
@@ -78,67 +73,30 @@ export const AnimalRaceGame = () => {
     <div className="min-h-screen cosmic-bg relative overflow-hidden">
       {/* Background Stars */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(100)].map((_, i) => (
+        {[...Array(50)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-primary rounded-full animate-sparkle"
+            className="absolute w-1 h-1 bg-primary rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`
+              top: `${Math.random() * 100}%`
             }}
           />
         ))}
       </div>
 
-      {/* Confetti Effect */}
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 animate-bounce"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][Math.floor(Math.random() * 5)],
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${1 + Math.random() * 2}s`
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Floating Emojis */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {['🎉', '⚡', '🏆', '💫', '🌟'].map((emoji, i) => (
-          <div
-            key={i}
-            className="absolute text-2xl animate-float opacity-20"
-            style={{
-              left: `${20 + i * 15}%`,
-              top: `${30 + Math.sin(i) * 20}%`,
-              animationDelay: `${i * 0.5}s`
-            }}
-          >
-            {emoji}
-          </div>
-        ))}
-      </div>
-
       {/* Header */}
       <header className="relative z-10 p-6 text-center">
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2 animate-pulse-glow">
+        <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2">
           🏁 COSMIC ANIMAL RACING 🏁
         </h1>
-        <p className="text-muted-foreground text-xl animate-fade-in">
+        <p className="text-muted-foreground text-xl">
           {isRacing ? "🏃‍♂️ The race is on! May the fastest animal win!" : 
            raceResult ? (isWinner ? "🎊 CONGRATULATIONS! You picked a winner!" : "😅 Better luck next time, champion!") :
            "Choose your champion and watch them zoom to victory! 🚀"}
         </p>
         {raceResult && (
-          <div className="mt-2 text-2xl animate-bounce">
+          <div className="mt-2 text-2xl">
             Winner: {animals.find(a => a.id === raceResult)?.emoji} {animals.find(a => a.id === raceResult)?.name}!
           </div>
         )}
@@ -158,8 +116,8 @@ export const AnimalRaceGame = () => {
             
 
             {/* Animal Selection */}
-            <Card className="race-card p-6 hover:scale-[1.02] transition-transform duration-300">
-              <h2 className="text-3xl font-bold text-center mb-6 text-primary animate-pulse">
+            <Card className="race-card p-6">
+              <h2 className="text-3xl font-bold text-center mb-6 text-primary">
                 🎯 Choose Your Racing Champion! 🎯
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -177,10 +135,10 @@ export const AnimalRaceGame = () => {
             </Card>
 
             {/* Betting Controls */}
-            <Card className="race-card p-6 border-2 border-dashed border-primary/30 hover:border-primary/60 transition-all duration-300">
+            <Card className="race-card p-6 border-2 border-dashed border-primary/30">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold text-primary animate-pulse">💰 Place Your Bet! 💰</h3>
-                <Badge variant="secondary" className="text-xl px-4 py-2 animate-pulse-glow">
+                <h3 className="text-2xl font-bold text-primary">💰 Place Your Bet! 💰</h3>
+                <Badge variant="secondary" className="text-xl px-4 py-2">
                   💵 ${balance}
                 </Badge>
               </div>
@@ -204,7 +162,7 @@ export const AnimalRaceGame = () => {
                 <Button
                   onClick={placeBet}
                   disabled={!selectedAnimal || isRacing || betAmount > balance}
-                  className="px-8 py-4 text-xl font-bold animate-pulse-glow hover:scale-110 transition-transform duration-200"
+                  className="px-8 py-4 text-xl font-bold"
                   size="lg"
                 >
                   {isRacing ? '🏃‍♂️ RACING IN PROGRESS...' : '🚀 LAUNCH THE RACE!'}
@@ -212,7 +170,7 @@ export const AnimalRaceGame = () => {
               </div>
               
               {selectedAnimal && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg border border-primary/30 animate-pulse">
+                <div className="mt-4 p-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg border border-primary/30">
                   <p className="text-center text-foreground text-lg">
                     🎯 Betting <span className="font-bold text-accent">${betAmount}</span> on{' '}
                     <span className="font-bold text-primary text-xl">
@@ -234,13 +192,13 @@ export const AnimalRaceGame = () => {
 
           {/* Right Sidebar - Animal Win Stats */}
           <div className="lg:col-span-1">
-            <Card className="race-card p-6 hover:scale-[1.02] transition-transform duration-300">
-              <h3 className="text-2xl font-bold text-center mb-4 text-primary animate-pulse">🏆 Champion Leaderboard 🏆</h3>
+            <Card className="race-card p-6">
+              <h3 className="text-2xl font-bold text-center mb-4 text-primary">🏆 Champion Leaderboard 🏆</h3>
               <div className="space-y-3">
                 {animals
                   .sort((a, b) => b.wins - a.wins)
                   .map((animal, index) => (
-                    <div key={animal.id} className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 hover:scale-105 ${
+                    <div key={animal.id} className={`flex items-center justify-between p-3 rounded-lg ${
                       index === 0 ? 'bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border border-yellow-400/30' :
                       index === 1 ? 'bg-gradient-to-r from-gray-300/20 to-gray-400/20 border border-gray-400/30' :
                       index === 2 ? 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border border-amber-600/30' :
@@ -252,7 +210,7 @@ export const AnimalRaceGame = () => {
                             {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
                           </div>
                         )}
-                        <span className="text-3xl animate-float" style={{ animationDelay: `${index * 0.1}s` }}>
+                        <span className="text-3xl">
                           {animal.emoji}
                         </span>
                         <div>
